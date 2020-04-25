@@ -1,0 +1,41 @@
+{
+   "name": "@j-khong/node-agnostic-middleware",
+   "version": "1.0.0",
+   "description": "",
+   "main": "index.js",
+   "scripts": {
+      "format": "prettier --config .prettierrc --write \"src/**/*.ts\"",
+      "lint": "tslint -p tsconfig.json --config tslint.json",
+      "build": "npm run lint && npm run format && tsc",
+      "test": "exit 0",
+      "start": "npm run watch-server",
+      "watch-server": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/index.ts"
+   },
+   "husky": {
+      "hooks": {
+         "pre-commit": "npm run format && npm run lint",
+         "pre-push": "npm test"
+      }
+   },
+   "keywords": [],
+   "author": "Julien Khong <julienkhong@yahoo.fr>",
+   "license": "ISC",
+   "dependencies": {
+      "express": "^4.17.1",
+      "koa": "^2.11.0",
+      "koa-router": "^8.0.8"
+   },
+   "devDependencies": {
+      "@types/express": "^4.17.6",
+      "@types/koa": "^2.11.3",
+      "@types/koa-router": "^7.4.0",
+      "@types/node": "^13.13.1",
+      "husky": "^4.2.5",
+      "nodemon": "^2.0.3",
+      "prettier": "^2.0.4",
+      "ts-node": "^8.8.2",
+      "tslint": "^6.1.1",
+      "tslint-config-prettier": "^1.18.0",
+      "typescript": "^3.8.3"
+   }
+}
