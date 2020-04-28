@@ -29,13 +29,7 @@ class CustomServer extends HttpServer {
    getOnIncomingRequest(): any {
       return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
          // console.log('middleware length:', this.getMiddlewares().length);
-         try {
-            console.log('getOnIncomingRequest call');
-            await this.doNext(req, res);
-            console.log('getOnIncomingRequest after');
-         } catch (e) {
-            console.log('caught', e.message);
-         }
+         await this.doNext(req, res);
       };
    }
 

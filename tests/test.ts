@@ -16,20 +16,18 @@ const should = chai.should();
 // const chaiHttp = require('chai-http');
 // chai.use(chaiHttp);
 
-// import server from '../src/index';
-// console.log(server);
+const server = 'localhost:3000';
 
 const apiRoot = '/api/v1';
-describe('routes : movies', () => {
+describe('routes : ', () => {
    //    beforeEach(() => {});
 
    //    afterEach(() => {});
 
-   describe('GET /api/v1/movies', () => {
-      it('should return all movies', (done) => {
+   describe('GET /api/v1/', () => {
+      it('should ', (done) => {
          chai
-            // .request(server)
-            .request('localhost:3000')
+            .request(server)
             .get(apiRoot + '/')
             .end((err, res) => {
                should.not.exist(err);
@@ -42,10 +40,9 @@ describe('routes : movies', () => {
             });
       });
 
-      it('should return all movies', (done) => {
+      it('should ', (done) => {
          chai
-            // .request(server)
-            .request('localhost:3000')
+            .request(server)
             .get(apiRoot + '/e')
             .end((err, res) => {
                should.not.exist(err);
@@ -57,10 +54,9 @@ describe('routes : movies', () => {
             });
       });
 
-      it('should return all movies', (done) => {
+      it('should ', (done) => {
          chai
-            // .request(server)
-            .request('localhost:3000')
+            .request(server)
             .get(apiRoot + '/ex')
             .end((err, res) => {
                should.not.exist(err);

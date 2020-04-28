@@ -91,11 +91,14 @@ export abstract class HttpServer {
    private middlewares: Middleware[] = [];
    constructor(private hostname: string, private port: number) {}
 
-   async start() {
-      this.app = http.createServer(this.getOnIncomingRequest());
+   start(): Promise<boolean> {
+      return new Promise((resolve: (b: boolean) => void, reject: (err?: any) => void) => {
+         this.app = http.createServer(this.getOnIncomingRequest());
 
-      this.app.listen(this.getPort(), this.getHostname(), () => {
-         console.log(`Server running at http://${this.getHostname()}:${this.getPort()}/`);
+         this.app.listen(this.getPort(), this.getHostname(), () => {
+            console.log(`Server running at http://${this.getHostname()}:${this.getPort()}/`);
+            resolve(true);
+         });
       });
    }
 

@@ -1,2 +1,2 @@
-export { buildServer } from './server';
+export { buildServer, middlewareCallback } from './server';
 export const envName = 'express';

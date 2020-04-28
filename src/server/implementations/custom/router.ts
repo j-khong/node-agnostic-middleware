@@ -8,22 +8,17 @@ class CustomRouter extends Router {
 
    protected getRouterCallback() {
       return async (req: IncomingMessage, res: ServerResponse, next: any) => {
-         try {
-            console.log("you've reached router", req.url);
-            if (undefined !== req.url) {
-               const url = StringUtils.replaceTrailing(req.url, '/', '');
-               const cb = this.routesMap.get(url);
-               if (undefined !== cb) {
-                  console.log('calling call back of ', url);
-                  await cb(req, res, next);
-               } else {
-                  console.log('no call back for ', url);
-                  await next();
-               }
+         console.log("you've reached router", req.url);
+         if (undefined !== req.url) {
+            const url = StringUtils.replaceTrailing(req.url, '/', '');
+            const cb = this.routesMap.get(url);
+            if (undefined !== cb) {
+               console.log('calling call back of ', url);
+               await cb(req, res, next);
+            } else {
+               console.log('no call back for ', url);
+               await next();
             }
-         } catch (e) {
-            console.log('caught in router', e.message);
-            await next();
          }
       };
    }
@@ -32,8 +27,8 @@ class CustomRouter extends Router {
       const url = StringUtils.replaceTrailing(route.uri, '/', '');
       // console.log('plugging ', url);
 
-      this.routesMap.set(url, (req: IncomingMessage, res: ServerResponse, next: any) => {
-         processRoute(route, { params: [], request: req, response: res });
+      this.routesMap.set(url, async (req: IncomingMessage, res: ServerResponse, next: any) => {
+         await processRoute(route, { params: [], request: req, response: res });
       });
    }
    protected plugPostRoute(route: PostRoute, processRoute: ProcessRoute<PostRoute>): void {}

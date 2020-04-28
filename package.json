@@ -9,7 +9,9 @@
       "build": "npm run lint && npm run format && tsc",
       "test": "npx mocha -r ts-node/register tests/**/*.ts",
       "start": "npm run watch-server",
-      "watch-server": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/index.ts"
+      "watch-koa": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/index-koa.ts",
+      "watch-express": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/index-express.ts",
+      "watch-custom": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/index-custom.ts"
    },
    "husky": {
       "hooks": {
