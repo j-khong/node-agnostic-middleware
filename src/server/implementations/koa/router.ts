@@ -1,6 +1,7 @@
 import Koa from 'koa';
 import Koa_Router from 'koa-router';
-import { Router } from '../../Router';
+import { Router, ProcessRoute } from '../../middlewares/Router';
+import { Route, GetRoute, PostRoute, PutRoute, DeleteRoute } from '../../domain/routes';
 
 class KoaRouter extends Router {
    private router: Koa_Router;
@@ -9,31 +10,31 @@ class KoaRouter extends Router {
       super();
       this.router = new Koa_Router();
    }
-   getCallback() {
-      this.processGetRoutes();
-      // console.log('this.router.routes();:', this.router.routes());
+
+   protected getRouterCallback() {
       return this.router.routes();
    }
 
-   private processGetRoutes() {
-      for (const route of this.getGetRoutes()) {
-         this.router.get(route.uri, async (ctx: Koa.ParameterizedContext) => {
-            try {
-               ctx.status = 201;
-               ctx.body = await route.action(ctx.params, ctx.request);
-               // {
-               //    status: 'success',
-               //    data: await route.action(ctx.params, ctx.request),
-               // };
-            } catch (err) {
-               ctx.status = 404;
-               ctx.body = {
-                  status: 'error',
-                  message: err,
-               };
-            }
-         });
-      }
+   protected plugGetRoute(route: GetRoute, processRoute: ProcessRoute<GetRoute>): void {
+      this.router.get(route.uri, async (ctx: Koa.ParameterizedContext) => {
+         // console.log('params', ctx.request.query);
+         await processRoute(route, { params: [], request: ctx.req, response: ctx.res });
+      });
+   }
+   protected plugPostRoute(route: PostRoute, processRoute: ProcessRoute<PostRoute>): void {
+      this.router.post(route.uri, async (ctx: Koa.ParameterizedContext) => {
+         await processRoute(route, { request: ctx.req, response: ctx.res });
+      });
+   }
+   protected plugPutRoute(route: PutRoute, processRoute: ProcessRoute<PutRoute>): void {
+      this.router.put(route.uri, async (ctx: Koa.ParameterizedContext) => {
+         await processRoute(route, { request: ctx.req, response: ctx.res });
+      });
+   }
+   protected plugDeleteRoute(route: DeleteRoute, processRoute: ProcessRoute<DeleteRoute>): void {
+      this.router.delete(route.uri, async (ctx: Koa.ParameterizedContext) => {
+         await processRoute(route, { request: ctx.req, response: ctx.res });
+      });
    }
 }
 

@@ -1,11 +1,24 @@
 import Koa from 'koa';
+import { Routes } from '../../domain/routes';
 import { HttpServer, buildServer as build } from '../../HttpServer';
 import { buildRouter } from './router';
-import { Middleware } from '../../Middleware';
+import { Middleware, CallBack } from '../../middlewares/Middleware';
+import { RouterErrorManager } from '../../middlewares/RouterErrorManager';
 
-export function buildServer(hostname: string, port: number, routes: any[], middlewares: Middleware[]): HttpServer {
-   return build(new KoaServer(hostname, port), buildRouter(), routes, middlewares);
+export function buildServer(hostname: string, port: number, routes: Routes[], middlewares: Middleware[]): HttpServer {
+   const server = new KoaServer(hostname, port);
+   const router = buildRouter();
+   const routerErrorManager = new RouterErrorManager(middlewareCallback);
+   const routingConf = { router, routes, routerErrorManager };
+
+   return build(server, routingConf, middlewares);
 }
+
+export const middlewareCallback = (cbToCall: CallBack) => {
+   return async (ctx: any, next: any) => {
+      await cbToCall({ request: ctx.req, response: ctx.res }, next);
+   };
+};
 
 class KoaServer extends HttpServer {
    private koa: Koa;
@@ -14,13 +27,13 @@ class KoaServer extends HttpServer {
       this.koa = new Koa();
    }
 
-   async getOnIncomingRequest(): Promise<any> {
+   getOnIncomingRequest(): any {
       //OnIncomingRequestCallback {
       for (const middleware of this.getMiddlewares()) {
-         console.log('add koa middleware');
+         // console.log('add koa middleware');
          this.koa.use(middleware.getCallback());
       }
 
-      return await this.koa.callback();
+      return this.koa.callback();
    }
 }

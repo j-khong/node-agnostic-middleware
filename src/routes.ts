@@ -1,13 +1,21 @@
-import { Routes } from './server/HttpServer';
+import { Routes } from './server/domain/routes';
+import { RequestContext } from './server/domain/messages';
 
 export function getRoutes(envName: string) {
    const routes: Routes[] = [
       {
+         rootUri: 'api/v1/',
          get: [
             {
-               uri: '/*',
-               action: async (params: any, request: any) => {
-                  return 'Hello World from ' + envName;
+               uri: '/',
+               action: async (context: RequestContext) => {
+                  return { msg: 'Hello World from ' + envName };
+               },
+            },
+            {
+               uri: '/ex',
+               action: async (context: RequestContext) => {
+                  throw new Error('exception to manage');
                },
             },
          ],

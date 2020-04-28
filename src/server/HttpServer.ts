@@ -1,39 +1,90 @@
+import { StringUtils } from '@jkhong/devutils';
 import * as http from 'http';
-import * as http2 from 'http2';
-import { Middleware } from './Middleware';
-import { Router } from './Router';
+import { Middleware } from './middlewares/Middleware';
+import { Router } from './middlewares/Router';
+import { RouterErrorManager } from './middlewares/RouterErrorManager';
+import { IncomingMessage, ServerResponse } from './domain/messages';
+import { Action, Route, GetRoute, PostRoute, PutRoute, DeleteRoute } from './domain/routes';
+import { Routes } from './domain/routes';
 
 export function buildServer(
    server: HttpServer,
-   router: Router,
-   routes: Routes[],
+   routingConf: { router: Router; routes: Routes[]; routerErrorManager: RouterErrorManager },
    middlewares: Middleware[],
 ): HttpServer {
    for (const middleware of middlewares) {
       server.use(middleware);
    }
 
-   const concatUris = (root: string | undefined, path: string) => {
-      if (undefined !== root) {
-         return `${root}/${path}`;
-      }
-      return path;
-   };
-   for (const routePack of routes) {
-      for (const getRoutes of routePack.get) {
-         getRoutes.uri = concatUris(routePack.rootUri, getRoutes.uri);
-         router.get(getRoutes);
-      }
-      for (const postRoutes of routePack.post) {
-         postRoutes.uri = concatUris(routePack.rootUri, postRoutes.uri);
-         router.post(postRoutes);
-      }
-   }
+   const { router, routes, routerErrorManager } = routingConf;
+   plugRoutes(router, routes);
 
    server.use(router);
+   server.use(routerErrorManager);
 
    return server;
 }
+
+function plugRoutes(router: Router, routes: Routes[]) {
+   for (const routePack of routes) {
+      initRouter<GetRoute>(
+         GetRoute,
+         (route: GetRoute) => {
+            router.get(route);
+         },
+         routePack.rootUri,
+         routePack.get,
+      );
+      initRouter<PostRoute>(
+         PostRoute,
+         (route: PostRoute) => {
+            router.post(route);
+         },
+         routePack.rootUri,
+         routePack.post,
+      );
+      initRouter<PutRoute>(
+         PutRoute,
+         (route: PutRoute) => {
+            router.put(route);
+         },
+         routePack.rootUri,
+         routePack.put,
+      );
+      initRouter<DeleteRoute>(
+         DeleteRoute,
+         (route: DeleteRoute) => {
+            router.delete(route);
+         },
+         routePack.rootUri,
+         routePack.delete,
+      );
+   }
+}
+function initRouter<T extends Route>(
+   type: new (uri: string, action: Action) => T,
+   routerCB: (route: T) => void,
+   rootUri: string | undefined,
+   routes: T[],
+) {
+   for (const route of routes) {
+      route.uri = concatUris(rootUri, route.uri);
+      routerCB(new type(route.uri, route.action));
+   }
+}
+
+const concatUris = (root: string | undefined, path: string) => {
+   const slash = '/';
+   let final = StringUtils.replaceLeading(path, slash, '');
+   if (undefined !== root) {
+      root = StringUtils.replaceTrailing(root, slash, '');
+      final = `${root}/${final}`;
+   }
+
+   // make sure leading '/' is there
+   final = '/' + StringUtils.replaceLeading(final, slash, '');
+   return final;
+};
 
 export abstract class HttpServer {
    private app: http.Server | null = null;
@@ -41,7 +92,7 @@ export abstract class HttpServer {
    constructor(private hostname: string, private port: number) {}
 
    async start() {
-      this.app = http.createServer(await this.getOnIncomingRequest());
+      this.app = http.createServer(this.getOnIncomingRequest());
 
       this.app.listen(this.getPort(), this.getHostname(), () => {
          console.log(`Server running at http://${this.getHostname()}:${this.getPort()}/`);
@@ -52,7 +103,7 @@ export abstract class HttpServer {
       this.middlewares.push(middleware);
    }
 
-   abstract async getOnIncomingRequest(): Promise<any>; //OnIncomingRequestCallback | http.ServerOptions;
+   abstract getOnIncomingRequest(): any; //OnIncomingRequestCallback | http.ServerOptions;
 
    protected getHostname(): string {
       return this.hostname;
@@ -65,21 +116,4 @@ export abstract class HttpServer {
    }
 }
 
-export type OnIncomingRequestCallback = (
-   req: http.IncomingMessage | http2.Http2ServerRequest,
-   res: http.ServerResponse | http2.Http2ServerResponse,
-) => Promise<void>;
-
-export interface Routes {
-   rootUri?: string;
-   get: Route[];
-   post: Route[];
-   put: Route[];
-   delete: Route[];
-}
-
-interface Route {
-   uri: string;
-   action: Action;
-}
-type Action = (params: any, request: any /*, callback:ActionCallback*/) => Promise<any>;
+// export type OnIncomingRequestCallback = (req: IncomingMessage, res: ServerResponse) => Promise<void>;
