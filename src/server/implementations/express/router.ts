@@ -15,9 +15,9 @@ class CustomRouter extends Router {
          processRoute(route, { params: [], request: req, response: res });
          // .then()
          // .catch((e) => {
-         //    console.log('caught ', e.message);
+         //    console.log('caught in router', e.message);
          //    // throw e;
-         //    next();
+         //    next(e);
          // });
       });
    }

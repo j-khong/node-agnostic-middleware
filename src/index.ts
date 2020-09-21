@@ -1,7 +1,7 @@
 import { getRoutes } from './routes';
 import { getMiddlewares } from './middlewares';
 
-const create = async (hostname: string, port: number, buildServer: any, middlewareCallback: any, envName: string) => {
+const createAndStart = async (hostname: string, port: number, buildServer: any, middlewareCallback: any, envName: string) => {
    const routes = getRoutes(envName);
    const middlewares = getMiddlewares(middlewareCallback);
 
@@ -9,4 +9,4 @@ const create = async (hostname: string, port: number, buildServer: any, middlewa
    await server.start();
    return server;
 };
-export { create };
+export { createAndStart };
