@@ -2,9 +2,7 @@ import * as HttpStatus from 'http-status-codes';
 import { Middleware } from './Middleware';
 import { RequestContext } from '../domain/messages';
 
-export class RouterErrorManager implements Middleware {
-   constructor(private callback: any) {}
-
+export class RouterErrorManager extends Middleware {
    getCallback() {
       ////mettre cette méthode dans RestResponseManager
       return this.getInterfaceCallback(async (ctx: RequestContext, next: any) => {
@@ -18,8 +16,5 @@ export class RouterErrorManager implements Middleware {
          );
          await next();
       });
-   }
-   getInterfaceCallback(cbToCall: any) {
-      return this.callback(cbToCall);
    }
 }

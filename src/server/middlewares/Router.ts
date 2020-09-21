@@ -3,7 +3,10 @@ import { Middleware } from './Middleware';
 import { RequestContext, ServerResponse } from '../domain/messages';
 import { Route, GetRoute, PostRoute, PutRoute, DeleteRoute } from '../domain/routes';
 
-export abstract class Router implements Middleware {
+export abstract class Router extends Middleware {
+   constructor() {
+      super(() => {}); // router won't use getInterfaceCallback
+   }
    get(route: GetRoute) {
       this.getRoutes.push(route);
    }

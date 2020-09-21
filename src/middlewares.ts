@@ -15,7 +15,7 @@ export function getMiddlewares(CB: any) {
    return middlewares;
 }
 
-//https://www.restapitutorial.com/httpstatuscodes.html
+// https://www.restapitutorial.com/httpstatuscodes.html
 
 // app.use(function(req, res, next) {
 //    next(createError(404));
@@ -32,55 +32,45 @@ export function getMiddlewares(CB: any) {
 //    res.json({ error: "error" });
 //  });
 
-class RestResponseManager implements Middleware {
-   getCallback() {
-      return this.getInterfaceCallback(async (req: any, res: http.ServerResponse, result: any, next: any) => {
-         console.log('passing in Rest Response Manager');
+// class RestResponseManager extends Middleware {
+//    getCallback() {
+//       return this.getInterfaceCallback(async (req: any, res: http.ServerResponse, result: any, next: any) => {
+//          console.log('passing in Rest Response Manager');
 
-         if (req.method === 'GET') {
-            res.writeHead(HttpStatus.ACCEPTED, { 'Content-Type': 'application/json' });
-         }
-         res.end(
-            JSON.stringify({
-               status: 'success',
-               data: result,
-            }),
-         );
-         await next();
-      });
-   }
+//          if (req.method === 'GET') {
+//             res.writeHead(HttpStatus.ACCEPTED, { 'Content-Type': 'application/json' });
+//          }
+//          res.end(
+//             JSON.stringify({
+//                status: 'success',
+//                data: result,
+//             }),
+//          );
+//          await next();
+//       });
+//    }
 
-   getInterfaceCallback(cbToCall: any) {
-      return async (ctx: any, next: any) => {
-         // console.log(ctx);
-         await cbToCall(ctx.req, ctx.res, ctx.body, next);
-      };
-   }
-}
+//    // getInterfaceCallback(cbToCall: any) {
+//    //    return async (ctx: any, next: any) => {
+//    //       // console.log(ctx);
+//    //       await cbToCall(ctx.req, ctx.res, ctx.body, next);
+//    //    };
+//    // }
+// }
 
-class Stuff1 implements Middleware {
-   constructor(private callback: any) {}
+class Stuff1 extends Middleware {
    getCallback() {
       return this.getInterfaceCallback(async (ctx: RequestContext, next: any) => {
          console.log(`stuff1`);
          await next();
       });
    }
-
-   getInterfaceCallback(cbToCall: any) {
-      return this.callback(cbToCall);
-   }
 }
-class Stuff2 implements Middleware {
-   constructor(private callback: any) {}
+class Stuff2 extends Middleware {
    getCallback() {
       return this.getInterfaceCallback(async (ctx: RequestContext, next: any) => {
          console.log(`stuff2`);
          await next();
       });
-   }
-
-   getInterfaceCallback(cbToCall: any) {
-      return this.callback(cbToCall);
    }
 }

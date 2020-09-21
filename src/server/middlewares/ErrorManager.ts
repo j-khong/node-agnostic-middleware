@@ -2,9 +2,7 @@ import * as HttpStatus from 'http-status-codes';
 import { Middleware, CallBack } from './Middleware';
 import { RequestContext, IncomingMessage, ServerResponse } from '../domain/messages';
 
-export class ErrorManager implements Middleware {
-   constructor(private callback: any) {}
-
+export class ErrorManager extends Middleware {
    getCallback() {
       return this.getInterfaceCallback(async (ctx: RequestContext, next: any) => {
          console.log('passing in Error Manager');
@@ -39,9 +37,5 @@ export class ErrorManager implements Middleware {
             console.log(exception.message);
          }
       });
-   }
-
-   getInterfaceCallback(cbToCall: CallBack) {
-      return this.callback(cbToCall);
    }
 }
